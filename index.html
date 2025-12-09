@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quadro Vivo - Master Edition v5.5</title>
+    <title>Quadro Vivo - Master Edition v5.6</title>
     
     <!-- Bibliotecas Externas (CDNs) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -221,10 +221,20 @@
 
         .separator { width: 1px; background: var(--glass-border); height: 24px; margin: 0 5px; }
 
-        /* Estilos de Loop Ativo */
-        .tool-btn.drum-active { background: rgba(252, 196, 25, 0.2); border-color: var(--warn-color); opacity: 1; box-shadow: 0 0 15px rgba(252, 196, 25, 0.2); animation: pulseEffect 0.5s infinite alternate; }
+        /* Estilo Ativo Genérico (para qualquer som a tocar) */
+        .tool-btn.sound-playing {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: var(--text-color);
+            opacity: 1;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            animation: pulseEffect 0.5s infinite alternate;
+        }
+
+        /* Estilos de Loop Específicos */
+        .tool-btn.drum-active { background: rgba(252, 196, 25, 0.2); border-color: var(--warn-color); }
         .tool-btn.drum-active svg { stroke: var(--warn-color); }
-        .tool-btn.clap-active { background: rgba(214, 51, 132, 0.2); border-color: var(--clap-color); opacity: 1; box-shadow: 0 0 15px rgba(214, 51, 132, 0.2); animation: pulseEffect 0.5s infinite alternate; }
+        
+        .tool-btn.clap-active { background: rgba(214, 51, 132, 0.2); border-color: var(--clap-color); }
         .tool-btn.clap-active svg { stroke: var(--clap-color); }
         
         /* Botões da Gaveta de Som (Grid) */
@@ -256,7 +266,7 @@
         
         /* Ajuste Mobile */
         @media (max-width: 768px) {
-            .tool-btn span { display: none; } /* Esconde legendas em mobile */
+            .tool-btn span { display: none; } 
             .tool-btn { padding: 10px; }
         }
     </style>
@@ -335,12 +345,9 @@
     <!-- Controlo -->
     <div id="control-panel">
         
-        <!-- Barra Principal (Ferramentas Visuais e Lógica) -->
         <div id="toolbar">
-            
             <button class="tool-btn simple-safe" id="btn-expand" onclick="toggleExpand()" title="Modo Lista/Texto Longo">
                 <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg>
-                <!-- Sem legenda -->
             </button>
 
             <div class="separator"></div>
@@ -385,44 +392,44 @@
             </button>
         </div>
 
-        <!-- GAVETA DE SONS (Todos os sons aqui) -->
+        <!-- GAVETA DE SONS -->
         <div id="sound-drawer">
-            <button class="tool-btn sound-drawer-btn" onclick="playSound('success')" title="Sucesso">
+            <button id="btn-success" class="tool-btn sound-drawer-btn" onclick="toggleSound('success')" title="Sucesso">
                 <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" style="stroke: var(--success-color);"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                 <!-- Sem legenda -->
             </button>
-            <button class="tool-btn sound-drawer-btn" onclick="playSound('error')" title="Erro">
+            <button id="btn-error" class="tool-btn sound-drawer-btn" onclick="toggleSound('error')" title="Erro">
                 <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" style="stroke: var(--danger-color);"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
                 <!-- Sem legenda -->
             </button>
-            <button id="btn-drum" class="tool-btn sound-drawer-btn" onclick="toggleLoop('drum')" title="Tambores">
+            <button id="btn-drum" class="tool-btn sound-drawer-btn" onclick="toggleSound('drum')" title="Tambores">
                 <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" style="stroke: var(--warn-color);"><path d="M12 2c5.5 0 10 1.8 10 4s-4.5 4-10 4S2 8.2 2 6s4.5-4 10-4z"></path><path d="M22 6v8c0 2.2-4.5 4-10 4S2 16.2 2 14V6"></path><line x1="7" y1="15" x2="7.5" y2="21"></line><line x1="17" y1="15" x2="16.5" y2="21"></line></svg>
                 <!-- Sem legenda -->
             </button>
-            <button id="btn-clap" class="tool-btn sound-drawer-btn" onclick="toggleClapping()" title="Palmas">
+            <button id="btn-clap" class="tool-btn sound-drawer-btn" onclick="toggleSound('clap')" title="Aplauso (Ovação)">
                 <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" style="stroke: var(--clap-color);"><path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4c0-1.1.9-2 2-2h8a2 2 0 0 1 2 2v5Z"></path><path d="M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1"></path></svg>
                 <span>Aplauso</span>
             </button>
-            <button class="tool-btn sound-drawer-btn" onclick="playSound('palmas')" title="Palmas 2">
+            <button id="btn-palmas" class="tool-btn sound-drawer-btn" onclick="toggleSound('palmas')" title="Palmas Rítmicas">
                 <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" style="stroke: var(--clap-color);"><path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4c0-1.1.9-2 2-2h8a2 2 0 0 1 2 2v5Z"></path><path d="M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1"></path></svg>
                 <span>Palmas</span>
             </button>
             
-            <button class="tool-btn sound-drawer-btn" onclick="playSound('pointUp')" title="+1">
+            <button id="btn-pointUp" class="tool-btn sound-drawer-btn" onclick="toggleSound('pointUp')" title="+1">
                 <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" style="stroke: var(--success-color);"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
                 <span>+1</span>
             </button>
-            <button class="tool-btn sound-drawer-btn" onclick="playSound('pointDown')" title="-1">
+            <button id="btn-pointDown" class="tool-btn sound-drawer-btn" onclick="toggleSound('pointDown')" title="-1">
                 <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" style="stroke: var(--danger-color);"><path d="M5 12h14"></path></svg>
                 <span>-1</span>
             </button>
             
-            <button class="tool-btn sound-drawer-btn" onclick="playSound('fanfare')" title="Fanfarra">
+            <button id="btn-fanfare" class="tool-btn sound-drawer-btn" onclick="toggleSound('fanfare')" title="Fanfarra">
                 <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" style="stroke: var(--warn-color);"><path d="M8 21h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z"></path><line x1="16" y1="4" x2="16" y2="20"></line><path d="M4 14h2"></path><path d="M4 10h2"></path><path d="M20 10h2"></path><path d="M20 14h2"></path></svg>
                 <!-- Sem legenda -->
             </button>
             
-            <button class="tool-btn sound-drawer-btn" onclick="playSound('trophy')" title="Vitória">
+            <button id="btn-trophy" class="tool-btn sound-drawer-btn" onclick="toggleSound('trophy')" title="Vitória">
                 <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" style="stroke: var(--gold-color);"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
                 <!-- Sem legenda -->
             </button>
@@ -460,8 +467,8 @@
             queue: [], history: [], historyIndex: -1, currentFontSize: 5, timerInterval: null,
             theme: 'dark', mode: 'pro', brand: 'futuro', scores: { A: 0, B: 0 },
             audioCtx: null, isExpanded: false, noiseBuffer: null,
-            audioCache: {},
-            currentLoop: { type: null, audioObj: null, intervalId: null }
+            // Gestão Unificada de Áudio
+            activeSounds: {} // Guarda { key: { audio: HTMLAudioElement, type: 'url' } }
         };
 
         const els = {
@@ -480,8 +487,6 @@
             navCount: document.getElementById('nav-queue-count'),
             logoArea: document.getElementById('logo-area'),
             appLogo: document.getElementById('app-logo'),
-            btnDrum: document.getElementById('btn-drum'),
-            btnClap: document.getElementById('btn-clap'),
             btnSoundDrawer: document.getElementById('btn-sound-drawer'),
             soundDrawer: document.getElementById('sound-drawer'),
             root: document.documentElement
@@ -499,6 +504,7 @@
             });
         }
 
+        // --- SISTEMA DE ÁUDIO UNIFICADO (TOGGLE + URL + LOOP) ---
         function initAudio() {
             if (!state.audioCtx) state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (!state.noiseBuffer && state.audioCtx) {
@@ -510,62 +516,86 @@
             }
         }
 
-        function playSound(key) {
+        function toggleSound(key) {
+            initAudio(); // Necessário para contextos de áudio
+
+            // 1. Verificar se já está a tocar: Se sim, PARAR.
+            if (state.activeSounds[key]) {
+                const sound = state.activeSounds[key];
+                if (sound.type === 'url' && sound.audio) {
+                    sound.audio.pause();
+                    sound.audio.currentTime = 0;
+                }
+                // Limpar estado visual e lógico
+                delete state.activeSounds[key];
+                updateSoundButtonState(key, false);
+                return;
+            }
+
+            // 2. Se não está a tocar, INICIAR.
             const url = AUDIO_URLS[key];
+            const isLoop = (key === 'drum' || key === 'clap'); // Defines quais são loops
+
             if (url) {
                 const audio = new Audio(url);
-                audio.play().catch(() => playSynthesis(key));
+                audio.loop = isLoop;
+                
+                // Registo no estado
+                state.activeSounds[key] = { audio: audio, type: 'url' };
+                updateSoundButtonState(key, true);
+
+                // Auto-stop para não-loops quando acabam
+                if (!isLoop) {
+                    audio.onended = () => {
+                        delete state.activeSounds[key];
+                        updateSoundButtonState(key, false);
+                    };
+                }
+
+                audio.play().catch(e => {
+                    console.log("Erro URL, fallback synth", e);
+                    // Fallback Synth (lógica simplificada para brevidade no fallback)
+                    playSynthesis(key);
+                    // No synth, o toggle visual é mais complexo, removemos logo o estado visual
+                    delete state.activeSounds[key];
+                    updateSoundButtonState(key, false);
+                });
             } else {
+                // Se não houver URL configurado
                 playSynthesis(key);
             }
+
+            // Efeitos Visuais Extra
             if (key === 'success' || key === 'fanfare' || key === 'trophy') triggerConfetti(0.5);
         }
 
-        function toggleLoop(key) {
-            initAudio(); 
-            if (state.currentLoop.type === key) { stopLoop(); return; }
-            if (state.currentLoop.type) stopLoop();
-
-            state.currentLoop.type = key;
-            if (key === 'drum') els.btnDrum.classList.add('drum-active');
-            if (key === 'clap') els.btnClap.classList.add('clap-active');
-
-            const url = AUDIO_URLS[key];
-            const audio = new Audio(url);
-            audio.loop = true;
+        function updateSoundButtonState(key, isActive) {
+            const btn = document.getElementById(`btn-${key}`);
+            if (!btn) return;
             
-            audio.play().then(() => {
-                state.currentLoop.audioObj = audio;
-            }).catch(() => {
-                if (key === 'drum') state.currentLoop.intervalId = setInterval(() => playSnareHit(state.audioCtx.currentTime), 80);
-                else if (key === 'clap') state.currentLoop.intervalId = setInterval(() => triggerClapBurst(state.audioCtx.currentTime), 160);
-            });
+            // Classes específicas para animações diferentes ou genérica
+            if (key === 'drum') {
+                isActive ? btn.classList.add('drum-active') : btn.classList.remove('drum-active');
+            } else if (key === 'clap') {
+                isActive ? btn.classList.add('clap-active') : btn.classList.remove('clap-active');
+            } else {
+                // Para os outros, uma classe genérica de "tocar"
+                isActive ? btn.classList.add('sound-playing') : btn.classList.remove('sound-playing');
+            }
         }
 
-        function stopLoop() {
-            if (state.currentLoop.audioObj) {
-                state.currentLoop.audioObj.pause();
-                state.currentLoop.audioObj = null;
-            }
-            if (state.currentLoop.intervalId) {
-                clearInterval(state.currentLoop.intervalId);
-                state.currentLoop.intervalId = null;
-            }
-            els.btnDrum.classList.remove('drum-active');
-            els.btnClap.classList.remove('clap-active');
-            state.currentLoop.type = null;
-        }
-
+        // --- SINTETIZADORES (Mantidos como Fallback rápido) ---
         function playSynthesis(key) {
-            initAudio();
             const ctx = state.audioCtx;
             const now = ctx.currentTime;
+            // (Lógica simplificada de one-shot, não suporta toggle stop perfeito no fallback, prioriza URL)
             if (key === 'success') { playTone(523.25, 'sine', 0.1, now); playTone(659.25, 'sine', 0.1, now + 0.1); playTone(783.99, 'triangle', 0.3, now + 0.2); } 
             else if (key === 'error') { playTone(150, 'sawtooth', 0.3, now); playTone(100, 'sawtooth', 0.3, now + 0.2); }
             else if (key === 'pointUp') { playTone(880, 'sine', 0.1, now); }
             else if (key === 'pointDown') { playTone(200, 'square', 0.2, now); }
             else if (key === 'fanfare') { playTone(523.25, 'triangle', 0.15, now); playTone(659.25, 'triangle', 0.15, now + 0.15); playTone(783.99, 'triangle', 0.15, now + 0.3); playTone(1046.50, 'triangle', 0.6, now + 0.45); }
             else if (key === 'trophy') { playTone(392.00, 'square', 0.1, now); playTone(523.25, 'square', 0.1, now + 0.1); playTone(659.25, 'square', 0.1, now + 0.2); playTone(783.99, 'square', 0.4, now + 0.3); playTone(523.25, 'square', 0.1, now + 0.7); playTone(1046.50, 'square', 0.8, now + 0.8); }
+            // Loops sintéticos removidos para focar na qualidade do URL, mas o som one-shot existe.
         }
 
         function playTone(freq, type, dur, time) {
@@ -578,32 +608,7 @@
             osc.start(time); osc.stop(time + dur);
         }
 
-        function playSnareHit(time) { 
-            const noise = state.audioCtx.createBufferSource();
-            noise.buffer = state.noiseBuffer;
-            const filt = state.audioCtx.createBiquadFilter();
-            filt.type = 'highpass'; filt.frequency.value = 1000;
-            const env = state.audioCtx.createGain();
-            noise.connect(filt); filt.connect(env); env.connect(state.audioCtx.destination);
-            env.gain.setValueAtTime(0.5, time);
-            env.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
-            noise.start(time); noise.stop(time + 0.1);
-        }
-
-        function triggerClapBurst(time) {
-            const noise = state.audioCtx.createBufferSource();
-            noise.buffer = state.noiseBuffer;
-            const filt = state.audioCtx.createBiquadFilter();
-            filt.type = 'bandpass'; filt.frequency.value = 1200;
-            const env = state.audioCtx.createGain();
-            noise.connect(filt); filt.connect(env); env.connect(state.audioCtx.destination);
-            env.gain.setValueAtTime(0.3, time);
-            env.gain.exponentialRampToValueAtTime(0.01, time + 0.15);
-            noise.start(time); noise.stop(time + 0.2);
-        }
-
-        function toggleClapping() { toggleLoop('clap'); }
-
+        // --- UI GERAL ---
         function toggleSoundDrawer() {
             els.soundDrawer.classList.toggle('open');
             els.controlPanel.classList.toggle('drawer-open');
@@ -625,7 +630,13 @@
             if(document.getElementById(`mode-${state.mode}`)) document.getElementById(`mode-${state.mode}`).classList.add('active');
             if(document.getElementById(`theme-${state.theme}`)) document.getElementById(`theme-${state.theme}`).classList.add('active');
             if(document.getElementById(`brand-${state.brand}`)) document.getElementById(`brand-${state.brand}`).classList.add('active');
-            if (state.mode === 'simple') { els.scoreboard.style.display = 'none'; clearInterval(state.timerInterval); els.timer.style.display = 'none'; stopLoop(); }
+            if (state.mode === 'simple') { 
+                els.scoreboard.style.display = 'none'; 
+                clearInterval(state.timerInterval); 
+                els.timer.style.display = 'none';
+                // Parar sons se mudar de modo
+                Object.keys(state.activeSounds).forEach(key => toggleSound(key));
+            }
         }
 
         function toggleExpand() {
@@ -639,85 +650,37 @@
         function btnGenerateQR() { const c = els.input.value.trim() || els.mainText.innerText; if(c) { updateDisplay(c, 'qr_force'); els.input.focus(); } }
         function btnDice() { 
             els.mainText.innerHTML = `<div class="dice-wrapper"><div id="dice-result" class="dice-result-label">...</div><div id="dice-visuals" class="dice-visuals dice-shake"><span>⚀</span><span>⚅</span></div></div>`;
-            playSound('success'); 
+            toggleSound('success'); 
             setTimeout(() => { document.getElementById('dice-result').innerText = "7"; document.getElementById('dice-result').classList.add('show'); }, 1000);
         } 
         function btnRandomPicker() { 
-            const input = prompt("Nomes:"); if(input) { els.mainText.innerText = "Sorteando..."; setTimeout(() => { els.mainText.innerText = input.split(',')[0]; playSound('fanfare'); }, 1000); }
+            const input = prompt("Nomes:"); if(input) { els.mainText.innerText = "Sorteando..."; setTimeout(() => { els.mainText.innerText = input.split(',')[0]; toggleSound('fanfare'); }, 1000); }
         }
         function toggleScoreboard() { els.scoreboard.style.display = (els.scoreboard.style.display === 'flex') ? 'none' : 'flex'; }
         function updateScore(team, e) { 
             const d = (e.shiftKey || e.button === 2) ? -1 : 1; 
             state.scores[team] = Math.max(0, state.scores[team] + d); 
             if(team==='A') els.scoreA.innerText = state.scores.A; else els.scoreB.innerText = state.scores.B;
-            playSound(d > 0 ? 'pointUp' : 'pointDown');
+            toggleSound(d > 0 ? 'pointUp' : 'pointDown');
         }
         function btnTimer() { const m = prompt("Minutos:"); if(m) startTimer(m); }
-        function btnClear() { els.mainText.classList.remove('visible'); els.qrContainer.style.display='none'; stopLoop(); }
+        function btnClear() { 
+            els.mainText.classList.remove('visible'); 
+            els.qrContainer.style.display='none'; 
+            // Parar todos os sons
+            Object.keys(state.activeSounds).forEach(key => toggleSound(key));
+        }
         
         els.input.addEventListener('keydown', (e) => { 
-            if(e.key==='Enter') {
-                const isShift = e.shiftKey;
-                const isCtrl = e.ctrlKey || e.metaKey;
-                if (state.isExpanded) {
-                    if (isCtrl) { e.preventDefault(); const c = els.input.value.trim(); if(c) { processInput(c); els.input.value = ""; } }
-                    else if (isShift) { e.preventDefault(); const c = els.input.value.trim(); if(c) addToQueue(c); els.input.value = ""; }
-                } else {
-                    if (isShift) { e.preventDefault(); const c = els.input.value.trim(); if(c) addToQueue(c); els.input.value = ""; }
-                    else { e.preventDefault(); const c = els.input.value.trim(); if(c) { processInput(c); els.input.value = ""; } }
-                }
-            }
+            if(e.key==='Enter' && !e.shiftKey && !state.isExpanded) { e.preventDefault(); processInput(els.input.value); els.input.value=""; }
         });
-        function processInput(t) { 
-            if(text !== state.history[state.history.length-1]) state.history.push(t);
-            state.historyIndex = state.history.length - 1;
-            
-            // Lógica de parser simplificada
-            updateDisplay(t, detectType(t));
+        function processInput(t) { updateDisplay(t, 'text'); }
+        function updateDisplay(c, type) { 
+            els.mainText.innerText = c; 
+            els.mainText.classList.add('visible'); 
+            els.qrContainer.style.display = type === 'qr_force' ? 'block' : 'none';
+            if(type === 'qr_force') new QRCode(els.qrContainer, { text: c, width: 256, height: 256 });
         }
-        
-        function updateDisplay(c, type, updateNav = true) { 
-            els.mainText.classList.remove('visible');
-            els.mainText.classList.add('exiting');
-            els.qrContainer.style.display = 'none';
-            
-            setTimeout(() => {
-                els.mainText.style.display = 'block';
-                
-                if (type === 'link' || type === 'qr_force') {
-                    const url = c.startsWith('http') || type === 'qr_force' ? c : `https://${c}`;
-                    if (type === 'link') els.mainText.innerHTML = `<a href="${url}" target="_blank" style="color:var(--accent-color); text-decoration:none; border-bottom:3px solid rgba(255,255,255,0.3);">${c}</a>`;
-                    else els.mainText.innerHTML = parseMarkdown(c);
-                    els.qrContainer.innerHTML = "";
-                    new QRCode(els.qrContainer, { text: url, width: 256, height: 256, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H });
-                    els.qrContainer.style.display = 'block';
-                } else {
-                    els.mainText.innerHTML = parseMarkdown(c);
-                }
-                
-                els.mainText.classList.remove('exiting');
-                void els.mainText.offsetWidth; 
-                els.mainText.classList.add('visible');
-                if (updateNav) updateNavState();
-            }, 500);
-        }
-        
-        // Remove parser de slide complexo, mantém markdown
-        function parseMarkdown(text) {
-            let lines = text.split('\n');
-            let processedLines = lines.map(line => {
-                let processed = line;
-                processed = processed.replace(/\*\*(.*?)\*\*/g, '<span style="color:var(--accent-color)">$1</span>');
-                processed = processed.replace(/\*(.*?)\*/g, '<em>$1</em>');
-                processed = processed.replace(/\[(.*?)\]/g, '<span class="bg-highlight">$1</span>');
-                if (processed.trim().startsWith('-')) {
-                    processed = `<div class="list-mode"><span class="list-bullet">•</span>${processed.replace(/^-/, '').trim()}</div>`;
-                }
-                return processed;
-            });
-            return processedLines.join('<br>');
-        }
-
         function startTimer(m) { 
             clearInterval(state.timerInterval);
             let time = m * 60;
@@ -729,7 +692,7 @@
                 if (time <= 0) {
                     clearInterval(state.timerInterval);
                     els.timer.style.color = '#ff4b4b';
-                    playSound('success');
+                    toggleSound('success');
                     triggerConfetti();
                     setTimeout(() => { els.timer.style.display = 'none'; els.timer.style.color = ''; }, 5000);
                 }
