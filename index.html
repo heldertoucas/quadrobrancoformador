@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quadro Branco v2.4</title>
+    <title>Quadro Branco v2.5</title>
 
     <!-- External Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
@@ -93,6 +93,38 @@
 
             100% {
                 background-position: 0% 50%;
+            }
+        }
+
+        /* Sunburst Effect */
+        .sunburst {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 200vmax;
+            height: 200vmax;
+            transform: translate(-50%, -50%);
+            background: repeating-conic-gradient(from 0deg,
+                    rgba(255, 215, 0, 0.1) 0deg 15deg,
+                    transparent 15deg 30deg);
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1s ease;
+            animation: rotateSunburst 30s linear infinite;
+        }
+
+        .sunburst.active {
+            opacity: 1;
+        }
+
+        @keyframes rotateSunburst {
+            from {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+
+            to {
+                transform: translate(-50%, -50%) rotate(360deg);
             }
         }
 
@@ -994,6 +1026,7 @@
 <body data-mode="pro">
 
     <div class="background"></div>
+    <div id="sunburst" class="sunburst"></div>
 
     <!-- HEADER: Logo & Menu -->
     <header id="logo-area">
@@ -1286,8 +1319,9 @@
             Clap: '<path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4c0-1.1.9-2 2-2h8a2 2 0 0 1 2 2v5Z"></path><path d="M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1"></path>',
             Plus: '<path d="M12 5v14"></path><path d="M5 12h14"></path>',
             Minus: '<path d="M5 12h14"></path>',
-            Speaker: '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>',
-            Trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>'
+            Speaker: '<path d="M8 21h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z"></path><line x1="16" y1="4" x2="16" y2="20"></line><path d="M4 14h2"></path><path d="M4 10h2"></path><path d="M20 10h2"></path><path d="M20 14h2"></path>',
+            Trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>',
+            Target: '<circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle>'
         };
 
         /*******************************************************
@@ -1301,7 +1335,8 @@
             brand: localStorage.getItem('qv_brand') || 'futuro',
             isExpanded: false,
             scores: {},
-            audioCtx: null, activeSounds: {}
+            audioCtx: null, activeSounds: {},
+            view: 'text' // 'text', 'qr', 'dice', 'picker', 'none'
         };
 
         /*******************************************************
@@ -1321,6 +1356,7 @@
                     if (sound.audio) { sound.audio.pause(); sound.audio.currentTime = 0; }
                     delete state.activeSounds[key];
                     ui.highlightSound(key, false);
+                    if (key === 'trophy') document.getElementById('sunburst').classList.remove('active');
                     return;
                 }
 
@@ -1337,6 +1373,7 @@
                     if (!isLoop) audio.onended = () => {
                         delete state.activeSounds[key];
                         ui.highlightSound(key, false);
+                        if (key === 'trophy') document.getElementById('sunburst').classList.remove('active');
                     };
 
                     audio.play().catch(() => this.playSynth(key));
@@ -1344,7 +1381,8 @@
                     this.playSynth(key);
                 }
 
-                if (['fanfare', 'trophy'].includes(key)) ui.confetti();
+                if (key === 'fanfare' || key === 'trophy') ui.confetti();
+                if (key === 'trophy') document.getElementById('sunburst').classList.add('active');
             }
 
             static playSynth(key) {
@@ -1480,12 +1518,7 @@
             },
 
             toggleQR() {
-                if (this.els.qrContainer.style.display === 'block') {
-                    this.closeQR();
-                } else {
-                    const content = this.els.input.value.trim() || this.els.mainText.innerText;
-                    if (content) this.updateDisplay(content, true);
-                }
+                features.qr.toggle();
             },
 
             closeQR() {
@@ -1561,6 +1594,62 @@
          * 5. FEATURES & LOGIC
          *******************************************************/
         const features = {
+            // New Unified View Manager
+            setView(mode, data = null) {
+                // Remove sunburst if not trophy
+                if (mode !== 'trophy') {
+                    const sb = document.getElementById('sunburst');
+                    if (sb) sb.classList.remove('active');
+                }
+
+                if (state.view === mode && !data) return;
+                state.view = mode;
+
+                ui.els.mainText.classList.remove('hidden', 'visible', 'rich-content');
+                ui.els.mainText.style.display = 'none';
+                ui.els.qrContainer.style.display = 'none';
+                document.getElementById('scoreboard').style.display = 'none';
+
+                switch (mode) {
+                    case 'text':
+                        ui.els.mainText.style.display = 'block';
+                        const isHtml = data && (/<[a-z][\s\S]*>/i.test(data) || data.includes('style=') || data.includes('<b>'));
+                        if (isHtml) {
+                            ui.els.mainText.classList.add('rich-content');
+                            ui.els.mainText.innerHTML = data;
+                        } else {
+                            ui.els.mainText.innerText = data || "";
+                        }
+                        void ui.els.mainText.offsetWidth;
+                        ui.els.mainText.classList.add('visible');
+                        break;
+
+                    case 'qr':
+                        ui.els.qrContainer.style.display = 'block';
+                        ui.els.qrWrapper.innerHTML = "";
+                        const canvas = document.createElement('canvas');
+                        ui.els.qrWrapper.appendChild(canvas);
+                        new QRious({ element: canvas, value: data, size: 256, level: 'H' });
+                        break;
+
+                    case 'dice':
+                        ui.els.mainText.style.display = 'block';
+                        ui.els.mainText.innerHTML = `
+                            <div class="dice-wrapper">
+                                <div id="dice-result" class="dice-result">A lançar...</div>
+                                <div class="dice-visuals dice-shake"><span id="d1"></span><span id="d2"></span></div>
+                            </div>`;
+                        ui.els.mainText.classList.add('visible');
+                        break;
+
+                    case 'picker':
+                        ui.els.mainText.style.display = 'block';
+                        ui.els.mainText.innerHTML = '<div style="font-size:3rem; font-weight:800; color:var(--accent-color)">Sorteando...</div>';
+                        ui.els.mainText.classList.add('visible');
+                        break;
+                }
+            },
+
             timer: {
                 async setup() {
                     if (state.timerInterval) {
@@ -1603,58 +1692,33 @@
 
             dice: {
                 roll() {
-                    // TOGGLE: If dice result is already visible, clear screen.
-                    if (document.querySelector('.dice-wrapper') && ui.els.mainText.classList.contains('visible')) {
-                        app.clear();
-                        return;
-                    }
-
-                    // V1-Style: Reset UI directly
-                    ui.els.mainText.classList.remove('hidden');
-                    ui.els.mainText.style.display = 'block';
-                    ui.els.qrContainer.style.display = 'none';
-                    document.getElementById('scoreboard').style.display = 'none';
-                    ui.els.mainText.classList.remove('rich-content');
-
-                    setTimeout(() => {
-                        const diceChars = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-                        ui.els.mainText.innerHTML = `
-                            <div class="dice-wrapper">
-                                <div id="dice-result" class="dice-result">A lançar...</div>
-                                <div class="dice-visuals dice-shake"><span id="d1"></span><span id="d2"></span></div>
-                            </div>`;
-
-                        void ui.els.mainText.offsetWidth; // Force reflow
-                        ui.els.mainText.classList.add('visible');
-
-                        let rolls = 0;
-                        const interval = setInterval(() => {
-                            const v1 = Math.floor(Math.random() * 6);
-                            const v2 = Math.floor(Math.random() * 6);
-                            document.getElementById('d1').innerText = diceChars[v1];
-                            document.getElementById('d2').innerText = diceChars[v2];
-                            if (++rolls >= 20) {
-                                clearInterval(interval);
-                                document.querySelector('.dice-visuals').classList.remove('dice-shake');
-                                const res = document.getElementById('dice-result');
-                                if (res) {
-                                    res.innerText = (v1 + v2 + 2);
-                                    res.classList.add('show');
-                                    AudioService.toggle('success');
-                                    ui.confetti();
-                                }
+                    if (state.view === 'dice') { app.clear(); return; }
+                    features.setView('dice');
+                    const diceChars = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+                    let rolls = 0;
+                    const interval = setInterval(() => {
+                        const v1 = Math.floor(Math.random() * 6);
+                        const v2 = Math.floor(Math.random() * 6);
+                        const d1 = document.getElementById('d1'), d2 = document.getElementById('d2');
+                        if (d1) d1.innerText = diceChars[v1];
+                        if (d2) d2.innerText = diceChars[v2];
+                        if (++rolls >= 20) {
+                            clearInterval(interval);
+                            const vis = document.querySelector('.dice-visuals');
+                            if (vis) vis.classList.remove('dice-shake');
+                            const res = document.getElementById('dice-result');
+                            if (res) {
+                                res.innerText = (v1 + v2 + 2);
+                                res.classList.add('show');
+                                AudioService.toggle('success');
                             }
-                        }, 80);
-                    }, 10);
+                        }
+                    }, 80);
                 }
             },
 
             picker: {
                 async setup() {
-                    // TOGGLE: If showing a picker result, toggle off/clear.
-                    // Strictly speaking V1 picker prompts first, but if we are in a "result state", clicking it again should clear.
-                    // However, standard behavior is to always prompt for a new one.
-
                     const text = await modal.show({
                         title: 'Sorteio Aleatório',
                         html: '<textarea class="modal-input" placeholder="Nomes separados por vírgula" rows="4"></textarea>'
@@ -1663,29 +1727,31 @@
                 },
                 run(names) {
                     if (names.length < 2) return;
+                    features.setView('picker');
+                    let spins = 0;
+                    const interval = setInterval(() => {
+                        if (state.view !== 'picker') { clearInterval(interval); return; }
+                        ui.els.mainText.innerText = names[Math.floor(Math.random() * names.length)];
+                        if (++spins >= 30) {
+                            clearInterval(interval);
+                            AudioService.toggle('fanfare');
+                        }
+                    }, 100);
+                }
+            },
 
-                    // V1-Style: Reset UI directly
-                    ui.els.mainText.classList.remove('hidden');
-                    ui.els.mainText.style.display = 'block';
-                    ui.els.qrContainer.style.display = 'none';
-                    document.getElementById('scoreboard').style.display = 'none';
-                    ui.els.mainText.classList.remove('rich-content');
-
-                    setTimeout(() => {
-                        ui.els.mainText.innerText = "Sorteando...";
-                        void ui.els.mainText.offsetWidth;
-                        ui.els.mainText.classList.add('visible');
-
-                        let spins = 0;
-                        const interval = setInterval(() => {
-                            ui.els.mainText.innerText = names[Math.floor(Math.random() * names.length)];
-                            if (++spins >= 30) {
-                                clearInterval(interval);
-                                AudioService.toggle('fanfare');
-                                ui.confetti();
-                            }
-                        }, 100);
-                    }, 10);
+            qr: {
+                toggle() {
+                    if (state.view === 'qr') {
+                        if (state.history.length > 0) features.setView('text', state.history[state.historyIndex]);
+                        else app.clear();
+                    } else {
+                        let content = ui.els.input.innerText.trim();
+                        if (!content && state.view === 'text') content = ui.els.mainText.innerText;
+                        if (content && content !== "..." && !content.includes("Sorteando")) {
+                            features.setView('qr', content);
+                        }
+                    }
                 }
             },
 
@@ -1711,7 +1777,9 @@
                                     <div class="score-label">Equipa ${char}</div>
                                  </div>`;
                     }
-                    html += `<button class="tool-btn" onclick="features.score.checkWinner()" style="margin-left:10px; background:var(--glass-bg)">🏆</button>`;
+                    html += `<button id="score-win-btn" onclick="features.score.checkWinner()" title="Apurar Vencedor" style="margin-left:15px; background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:50%; width:75px; height:75px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-color); transition:all 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                                <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="2" fill="none">${ICONS.Target}</svg>
+                             </button>`;
                     const sb = document.getElementById('scoreboard');
                     sb.innerHTML = html;
                     sb.style.display = 'flex';
@@ -1755,17 +1823,12 @@
             manualSubmit() { this.processInput(); },
 
             showContent(text) {
-                // Determine if text handles HTML
-                const isHtml = text.includes('<');
-                const cleanText = isHtml ? text : text; // Simplify for now
-
                 // Add to history
                 if (state.history[state.history.length - 1] !== text) {
                     state.history.push(text);
                     state.historyIndex = state.history.length - 1;
                 }
-                ui.updateDisplay(text, false); // Pass false for isQR 
-                ui.els.mainText.innerHTML = text; // Ensure HTML rendering
+                features.setView('text', text);
                 ui.navControls();
             },
 
@@ -1783,7 +1846,7 @@
                 if (dir === 'back') {
                     if (state.historyIndex > 0) {
                         state.historyIndex--;
-                        ui.updateDisplay(state.history[state.historyIndex]);
+                        features.setView('text', state.history[state.historyIndex]);
                     }
                 } else {
                     if (state.queue.length > 0) {
@@ -1792,18 +1855,16 @@
                         this.showContent(next);
                     } else if (state.historyIndex < state.history.length - 1) {
                         state.historyIndex++;
-                        ui.updateDisplay(state.history[state.historyIndex]);
+                        features.setView('text', state.history[state.historyIndex]);
                     }
                 }
                 ui.navControls();
             },
 
             clear() {
-                ui.els.mainText.innerText = "";
+                features.setView('text', '');
                 ui.els.mainText.classList.remove('visible');
-                ui.closeQR();
-                document.getElementById('scoreboard').style.display = 'none';
-                if (state.timerInterval) features.timer.setup(); // toggle off
+                if (state.timerInterval) features.timer.setup();
             }
         };
 
