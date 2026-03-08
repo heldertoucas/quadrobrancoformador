@@ -1,6 +1,8 @@
 # Ferramentas de Apoio à Formação
 
-Este repositório contém duas ferramentas interativas desenvolvidas para dinamizar sessões de formação:: **Quadro Branco** e **Futuro Digital**.
+> **Criado por Hélder Touças e Vanessa Veríssimo** para os programas Passaporte Competências Digitais | Futuro Digital | CMLisboa
+
+Este repositório contém duas ferramentas interativas desenvolvidas para dinamizar sessões de formação: **Quadro Branco** e **Futuro Digital**.
 
 Ambas as ferramentas foram desenhadas com foco na **portabilidade** e facilidade de uso em qualquer contexto de sala de aula ou formação online.
 
@@ -65,3 +67,26 @@ O `futuro-digital.html` serve como um slide de apresentação dinâmico e també
 ---
 
 > **Dica:** Para usar espaços no texto via URL, utilize a codificação `%20` (ex: `Bom%20Dia`).
+
+---
+
+## 📜 Histórico de Versões
+
+### V3 (Atual / Produção)
+* **Design & UX Premium:** Barra de ferramentas com *scroll* horizontal em mobile, menu principal com formato *Bottom Sheet*.
+* **Escalabilidade de Texto Fluida:** Novo algoritmo matemático (CSS `clamp` dinâmico) que ajusta o tamanho da fonte suavemente à medida que se escreve, sem saltos bruscos.
+* **Leitura Natural de URLs:** Deteção inteligente de links e palavras longas, inserindo quebras de linha em símbolos (`/`, `.`, `-`, etc.) sem cortar palavras a meio.
+* **Controlo Manual:** Adicionado Zoom Manual via `Ctrl + Scroll`.
+* **Novos Programas e Atalhos:** Inclusão da CMLisboa e links diretos para apresentações e portal Futuro Digital na gaveta "Links Rápidos".
+* **Mantém a Identidade:** Código monolítico rápido e leve com manutenção de todas as fontes gráficas originais.
+
+### Legacy V3 (Anterior v2.6 estabilizada)
+* Arquivada na pasta `/legacy_v3/`. 
+* Versão monolítica muito otimizada e madura, base das inovações visuais antes das reformulações de UX avançada.
+
+### Legacy V2
+* Arquivada na pasta `/legacy_v2/`.
+* Versão original do Futuro Digital e Quadro Branco clássico, com componentes ligeiramente mais rígidos.
+
+### V1
+* Versão conceptual inicial (arquivada em `/v1/`), estruturada em vanilla mais básico e com as primeiras integrações das funções formativas.

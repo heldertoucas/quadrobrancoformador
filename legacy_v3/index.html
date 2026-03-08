@@ -475,107 +475,24 @@
 
             /* Minimal button style */
             #logo-btn {
-                padding: 10px;
+                padding: 8px;
                 background: var(--glass-bg);
                 backdrop-filter: blur(5px);
                 border: 1px solid var(--glass-border);
-                border-radius: 12px;
-                opacity: 0.8;
-                z-index: 1001;
-                /* Stay above everything when open */
+                border-radius: 8px;
+                opacity: 0.6;
             }
 
             #logo-btn:hover {
                 opacity: 1;
             }
 
-            /* Mobile Modal Overlay for Menu */
-            #logo-area::before {
-                content: '';
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0, 0, 0, 0.5);
-                backdrop-filter: blur(3px);
-                opacity: 0;
-                pointer-events: none;
-                transition: opacity 0.3s ease;
-                z-index: 999;
-            }
-
-            #logo-area.active::before {
-                opacity: 1;
-                pointer-events: auto;
-            }
-
-            /* Bottom Sheet Menu Style */
+            /* Ensure menu doesn't overflow screen */
             .dropdown-menu {
-                position: fixed;
-                top: auto;
-                bottom: 0;
-                left: 0;
-                width: 100vw;
-                margin: 0;
-                border-radius: 24px 24px 0 0;
-                padding: 20px 15px 40px;
-                max-height: 85vh;
+                max-height: calc(100vh - 80px);
+                /* Leave space for top/bottom */
                 overflow-y: auto;
-                transform: translateY(100%);
-                animation: none;
-                transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-                border: none;
-                border-top: 1px solid var(--glass-border);
-                background: var(--expanded-bg);
-                z-index: 1000;
-                box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
-                display: flex;
-                /* Always display but transform hidden */
             }
-
-            /* Add a drag handle visual */
-            .dropdown-menu::before {
-                content: '';
-                display: block;
-                width: 40px;
-                height: 4px;
-                background: var(--glass-border);
-                border-radius: 4px;
-                margin: 0 auto 15px auto;
-            }
-
-            #logo-area.active .dropdown-menu {
-                transform: translateY(0);
-            }
-
-            .menu-item {
-                padding: 12px 15px;
-                font-size: 1rem;
-            }
-
-            .menu-close-btn {
-                display: flex;
-                position: absolute;
-                top: 15px;
-                right: 15px;
-                background: var(--glass-bg);
-                border: 1px solid var(--glass-border);
-                color: var(--text-color);
-                width: 32px;
-                height: 32px;
-                border-radius: 50%;
-                font-size: 1.2rem;
-                cursor: pointer;
-                z-index: 1002;
-                align-items: center;
-                justify-content: center;
-            }
-        }
-
-        .menu-close-btn {
-            display: none;
-            /* Hidden on desktop */
         }
 
         /* Main Display Area */
@@ -592,26 +509,18 @@
         }
 
         h1 {
-            /* Fluid calculation base: length coefficient */
-            --char-count: 1;
-            /* Mathematical fluid scale: 
-               Starts at ~6vw (max 6rem), decreases as char-count increases, but never goes below 1.5rem 
-               Formula: Math.max(min_size, max_size - (chars * shrink_factor))
-               We implement this neatly with a JS driven custom property multiplier.
-            */
-            font-size: calc(clamp(1.5rem, calc(6vw * var(--scale-factor, 1)), 6rem) * var(--manual-zoom, 1));
+            font-size: clamp(3rem, 10vw, 5rem);
+            /* Responsive fluid sizing */
             font-weight: 800;
-            line-height: 1.2;
+            line-height: 1.1;
             margin: 0;
             opacity: 0;
             transform: scale(0.9) translateY(20px);
-            transition: font-size 0.2s linear, opacity 0.5s, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: font-size 0.3s ease, opacity 0.5s, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
             text-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             max-width: 90%;
             word-wrap: break-word;
             white-space: pre-wrap;
-            /* Only break anywhere if explicitly needed, let \u200B handle URLs */
-            word-break: normal;
         }
 
         /* Rich Content Overrides */
@@ -789,7 +698,6 @@
             width: 100%;
             justify-content: center;
             flex-wrap: wrap;
-            /* Desktop wrap */
             overflow: hidden;
             max-height: 0;
             opacity: 0;
@@ -806,13 +714,6 @@
             padding-bottom: 10px;
             border-bottom: 1px solid var(--glass-border);
             animation: fadeInMenu 0.3s ease;
-            overflow-x: auto;
-            /* Prevent overflow on small screens */
-            white-space: nowrap;
-        }
-
-        #rich-toolbar::-webkit-scrollbar {
-            display: none;
         }
 
         #control-panel.expanded #rich-toolbar {
@@ -833,7 +734,6 @@
             justify-content: center;
             width: 32px;
             height: 32px;
-            flex-shrink: 0;
         }
 
         .fmt-btn svg {
@@ -856,7 +756,6 @@
             cursor: pointer;
             font-size: 1.2rem;
             padding: 5px;
-            z-index: 10;
         }
 
         .submenu-close:hover {
@@ -894,7 +793,6 @@
             align-items: center;
             gap: 8px;
             opacity: 0.8;
-            flex-shrink: 0;
         }
 
         .tool-btn:hover,
@@ -998,7 +896,6 @@
 
         #control-panel.expanded .input-editor {
             max-height: 200px;
-            min-height: 100px;
             overflow-y: auto;
             border: 1px solid var(--glass-border);
             border-radius: 8px;
@@ -1339,22 +1236,7 @@
                 padding: 10px;
             }
 
-            /* Horizontal Scroll Toolbar for mobile to prevent wrapping height explosion */
-            #toolbar {
-                flex-wrap: nowrap;
-                justify-content: flex-start;
-                overflow-x: auto;
-                overflow-y: hidden;
-                padding-bottom: 12px;
-                /* space for scroll bar if OS shows it */
-                -webkit-overflow-scrolling: touch;
-                mask-image: linear-gradient(to right, black 80%, transparent 100%);
-            }
 
-            #toolbar::-webkit-scrollbar {
-                display: none;
-                /* Hide scrollbar for cleaner look */
-            }
 
             #logo-area {
                 top: 15px;
@@ -1373,10 +1255,6 @@
 
             #app-logo {
                 height: 50px;
-            }
-
-            .dice-visuals {
-                font-size: 7rem;
             }
         }
 
@@ -1606,7 +1484,7 @@
     <div id="sunburst" class="sunburst"></div>
 
     <!-- HEADER: Logo & Menu -->
-    <header id="logo-area" onclick="handleLogoAreaClick(event)">
+    <header id="logo-area">
         <button id="logo-btn" onclick="toggleMenu(event)" aria-label="Abrir Menu de Tema" aria-haspopup="true">
             <img id="app-logo" src="" alt="Logo">
             <span id="logo-arrow">▼</span>
@@ -1622,12 +1500,8 @@
         </button>
 
         <div id="style-menu" class="dropdown-menu" role="menu">
-            <button class="menu-close-btn" onclick="toggleMenu(event)" aria-label="Fechar Menu">×</button>
             <div class="menu-content">
                 <div class="menu-category">Programa</div>
-                <button class="menu-item" onclick="app.setBrand('cml')" id="brand-cml" role="menuitem">
-                    <div class="menu-dot"></div> CMLisboa
-                </button>
                 <button class="menu-item" onclick="app.setBrand('futuro')" id="brand-futuro" role="menuitem">
                     <div class="menu-dot"></div> Futuro Digital
                 </button>
@@ -1730,6 +1604,7 @@
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                 </svg>
+                <span>Timer</span>
             </button>
 
             <button class="tool-btn" onclick="features.score.setup()" title="Placar">
@@ -1773,6 +1648,7 @@
                     <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
                     <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
                 </svg>
+                <span>Sons</span>
             </button>
 
             <button class="tool-btn" onclick="ui.toggleQR()" title="Criar QR Code">
@@ -1914,7 +1790,7 @@
 
         <!-- LINKS DRAWER (New Grid) -->
         <div id="links-drawer" class="links-drawer">
-            <div class="link-card" onclick="features.slide.openSlides()">
+            <div class="link-card" onclick="ui.showToast('Brevemente...')">
                 <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                     <polyline points="17 8 12 3 7 8"></polyline>
@@ -1929,14 +1805,6 @@
                     <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"></path>
                 </svg>
                 <span>Portal Futuro Digital</span>
-            </div>
-            <div class="link-card" onclick="features.slide.openChallenge()">
-                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
-                    <polygon
-                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
-                    </polygon>
-                </svg>
-                <span>Desafio do dia</span>
             </div>
         </div>
 
@@ -1970,7 +1838,6 @@
          * 1. CONSTANTS & ASSETS
          *******************************************************/
         const BRANDS = {
-            'cml': { light: 'https://i.imgur.com/3Iwst9h.png', dark: 'https://i.imgur.com/rCMS5Ap.png', name: 'CMLisboa' },
             'futuro': { light: 'https://i.imgur.com/L7wNgqt.png', dark: 'https://i.imgur.com/tYc9GgI.png', name: 'Futuro Digital' },
             'passaporte': { light: 'https://i.imgur.com/Rzf5kQ3.png', dark: 'https://i.imgur.com/Mzwq7n0.png', name: 'Passaporte Competências' },
             'ia': { light: 'https://i.imgur.com/9qGRGAt.png', dark: 'https://i.imgur.com/QPifhum.png', name: 'IA para Todos' }
@@ -2207,21 +2074,8 @@
                 document.addEventListener('click', (e) => {
                     if (!document.getElementById('logo-area').contains(e.target)) {
                         document.getElementById('logo-area').classList.remove('active');
-                        if (window.innerWidth <= 900) document.body.style.overflow = '';
                     }
                 });
-
-                // Ctrl + Scroll to zoom text
-                document.addEventListener('wheel', (e) => {
-                    if (e.ctrlKey) {
-                        e.preventDefault();
-                        let zoom = parseFloat(document.documentElement.style.getPropertyValue('--manual-zoom')) || 1;
-                        if (e.deltaY < 0) zoom += 0.1; // Scroll up = zoom in
-                        else zoom -= 0.1; // Scroll down = zoom out
-                        zoom = Math.max(0.5, Math.min(zoom, 5)); // Limits 0.5x to 5x
-                        document.documentElement.style.setProperty('--manual-zoom', zoom);
-                    }
-                }, { passive: false });
 
                 this.els.input.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' && !e.shiftKey && !state.isExpanded) {
@@ -2252,43 +2106,15 @@
             },
 
             updateDisplay(text, isQR = false) {
+                // Check for HTML to enable rich mode
                 const isHtml = /<[a-z][\s\S]*>/i.test(text) || text.includes('style=') || text.includes('<b>') || text.includes('<i>');
-
-                // Natural URL & Long Word Breaking (Add zero-width space after / . - ? = & _)
-                let processedText = text;
-                if (!isHtml) {
-                    processedText = text.split(/(\s+)/).map(word => {
-                        // Detects URL-like strings or very long words
-                        if (word.includes('/') || word.includes('www.') || word.match(/\.[a-z]{2,}/i) || word.length > 25) {
-                            // Adds a zero-width space AFTER the symbol to allow natural line breaks
-                            return word.replace(/([/.\-?=&_])/g, '$1\u200B');
-                        }
-                        return word;
-                    }).join('');
-                } else if (!text.includes(' ') && text.length > 30) {
-                    // Fallback for long strings without spaces that might be considered HTML
-                    processedText = text.replace(/([/.\-?=&_])/g, '$1\u200B');
-                }
-
-                // Dynamic Smooth Scaling Logic via clamp modifier
-                const len = processedText.length;
-                if (!isQR) {
-                    // Decay curve: Scale factor decreases as length increases
-                    // Max scale is 1.0 (for short texts), Min scale is ~0.35
-                    // Example mapping: 10 chars -> 1.0, 50 chars -> 0.7, 100 chars -> 0.45, 200+ chars -> 0.35
-                    let factor = 1.0;
-                    if (len > 15) {
-                        factor = Math.max(0.35, 1.0 - ((len - 15) * 0.005));
-                    }
-                    this.els.mainText.style.setProperty('--scale-factor', factor);
-                }
 
                 if (isHtml && !isQR) {
                     this.els.mainText.classList.add('rich-content');
-                    this.els.mainText.innerHTML = processedText;
+                    this.els.mainText.innerHTML = text;
                 } else {
                     this.els.mainText.classList.remove('rich-content');
-                    this.els.mainText.innerText = processedText;
+                    this.els.mainText.innerText = text;
                 }
 
                 this.els.mainText.classList.remove('hidden');
@@ -2299,7 +2125,7 @@
                     this.els.qrWrapper.innerHTML = "";
                     const canvas = document.createElement('canvas');
                     this.els.qrWrapper.appendChild(canvas);
-                    new QRious({ element: canvas, value: (isHtml ? this.els.mainText.innerText : processedText), size: 256, level: 'H' });
+                    new QRious({ element: canvas, value: (isHtml ? this.els.mainText.innerText : text), size: 256, level: 'H' });
                 } else {
                     this.els.qrContainer.style.display = 'none';
                 }
@@ -2734,26 +2560,10 @@
                     localStorage.setItem('slideData', JSON.stringify(data));
                     window.location.href = 'futuro-digital.html';
                 },
-                openSlides() {
-                    const data = {
-                        text: "https://docs.google.com/presentation/d/1BR9b4cx1kMfBY3zkMFgV5BjtMpbur9K7CV6J2YUNr70/view",
-                        scheme: 'default'
-                    };
-                    localStorage.setItem('slideData', JSON.stringify(data));
-                    window.location.href = 'futuro-digital.html';
-                },
                 openPortal() {
                     const data = {
-                        text: "bit.ly/futurodigitalcml",
+                        text: "bit.ly/futurodigital",
                         scheme: 'scheme2' // Green, Blue, Purple
-                    };
-                    localStorage.setItem('slideData', JSON.stringify(data));
-                    window.location.href = 'futuro-digital.html';
-                },
-                openChallenge() {
-                    const data = {
-                        text: "bit.ly/desafiocml",
-                        scheme: 'scheme3' // Green, Orange, Red
                     };
                     localStorage.setItem('slideData', JSON.stringify(data));
                     window.location.href = 'futuro-digital.html';
@@ -2834,29 +2644,9 @@
             }
         };
 
-        function handleLogoAreaClick(e) {
-            if (e.target.id === 'logo-area') {
-                const logoArea = document.getElementById('logo-area');
-                logoArea.classList.remove('active');
-                if (window.innerWidth <= 900) {
-                    document.body.style.overflow = '';
-                }
-            }
-        }
-
         function toggleMenu(e) {
-            if (e) e.stopPropagation();
-            const logoArea = document.getElementById('logo-area');
-            logoArea.classList.toggle('active');
-
-            // On mobile, if menu is active, prevent body scrolling to keep focus on menu
-            if (window.innerWidth <= 900) {
-                if (logoArea.classList.contains('active')) {
-                    document.body.style.overflow = 'hidden';
-                } else {
-                    document.body.style.overflow = ''; // Restore body scroll
-                }
-            }
+            e.stopPropagation();
+            document.getElementById('logo-area').classList.toggle('active');
         }
 
         // INIT

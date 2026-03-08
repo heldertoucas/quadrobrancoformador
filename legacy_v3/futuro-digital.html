@@ -50,16 +50,14 @@
         }
 
         .main-title h2 {
-            --char-count: 1;
-            font-size: calc(clamp(1.5rem, calc(6vw * var(--scale-factor, 1)), 6.5rem) * var(--manual-zoom, 1));
+            font-size: 5.4vw;
             font-weight: 900;
             color: #000;
-            line-height: 1.1;
+            line-height: 1.2;
             animation: slideInLeft 1.2s ease-out;
             max-width: 45vw;
-            /* Intelligent URL & Word Breaking */
-            overflow-wrap: anywhere;
-            word-break: normal;
+            /* Create line break if needed */
+            word-wrap: break-word;
         }
 
         /* Imagem Circular */
@@ -366,6 +364,10 @@
 
         /* Responsividade */
         @media (max-width: 1400px) {
+            .main-title h2 {
+                font-size: 90px;
+            }
+
             .team-image-container {
                 width: 450px;
                 height: 450px;
@@ -373,6 +375,10 @@
         }
 
         @media (max-width: 1024px) {
+            .main-title h2 {
+                font-size: 70px;
+            }
+
             .team-image-container {
                 width: 350px;
                 height: 350px;
@@ -402,6 +408,10 @@
             .main-title {
                 left: 20px;
                 top: 40%;
+            }
+
+            .main-title h2 {
+                font-size: 50px;
             }
 
             .team-image-container {
@@ -619,19 +629,6 @@
     <script>
         // Script opcional para interatividade adicional
         document.addEventListener('DOMContentLoaded', function () {
-
-            // Ctrl + Scroll to zoom
-            document.addEventListener('wheel', function (e) {
-                if (e.ctrlKey) {
-                    e.preventDefault();
-                    let zoom = parseFloat(document.documentElement.style.getPropertyValue('--manual-zoom')) || 1;
-                    if (e.deltaY < 0) zoom += 0.1;
-                    else zoom -= 0.1;
-                    zoom = Math.max(0.5, Math.min(zoom, 5));
-                    document.documentElement.style.setProperty('--manual-zoom', zoom);
-                }
-            }, { passive: false });
-
             // --- LOGICA V3 DO SLIDE ---
             // 1. Botão de Voltar
             const backBtn = document.createElement('div');
@@ -677,36 +674,14 @@
 
             // 2. Carregar Dados (LocalStorage + URL Params)
             try {
-                const h2 = document.querySelector('.main-title h2');
-
-                const updateSlideText = (text) => {
-                    if (!h2) return;
-
-                    // Natural URL Breaking
-                    let processedText = text.split(/(\s+)/).map(word => {
-                        // Detects URL-like strings or very long words
-                        if (word.includes('/') || word.includes('www.') || word.match(/\.[a-z]{2,}/i) || word.length > 25) {
-                            return word.replace(/([/.\-?=&_])/g, '$1\u200B');
-                        }
-                        return word;
-                    }).join('');
-
-                    // Dynamic Smooth Scaling Logic via clamp modifier
-                    const len = processedText.length;
-                    let factor = 1.0;
-                    if (len > 15) {
-                        factor = Math.max(0.35, 1.0 - ((len - 15) * 0.005));
-                    }
-                    h2.style.setProperty('--scale-factor', factor);
-
-                    h2.innerText = processedText;
-                };
-
                 // A. LocalStorage (Base)
                 const dataStr = localStorage.getItem('slideData');
                 if (dataStr) {
                     const data = JSON.parse(dataStr);
-                    if (data.text) updateSlideText(data.text);
+                    if (data.text) {
+                        const h2 = document.querySelector('.main-title h2');
+                        if (h2) h2.innerText = data.text;
+                    }
                     if (data.scheme) applyTheme(data.scheme);
                 }
 
@@ -714,7 +689,8 @@
                 const params = new URLSearchParams(window.location.search);
 
                 if (params.has('text')) {
-                    updateSlideText(params.get('text'));
+                    const h2 = document.querySelector('.main-title h2');
+                    if (h2) h2.innerText = params.get('text');
                 }
 
                 if (params.has('theme')) {
